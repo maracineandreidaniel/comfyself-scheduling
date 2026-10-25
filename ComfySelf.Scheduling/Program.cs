@@ -1,4 +1,5 @@
 using System.Text;
+using ComfySelf.Scheduling.API.Handlers;
 using ComfySelf.Scheduling.Application.Clients;
 using ComfySelf.Scheduling.Application.Clients.Abstractions;
 using ComfySelf.Scheduling.Application.Repositories.Abstractions;
@@ -13,6 +14,10 @@ using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 
 var builder = WebApplication.CreateBuilder(args);
+
+builder.Services.AddProblemDetails(configure => configure.CustomizeProblemDetails = context => context.ProblemDetails.Extensions.TryAdd("requestId", context.HttpContext.TraceIdentifier));
+builder.Services.AddExceptionHandler<ValidationExceptionHandler>();
+builder.Services.AddExceptionHandler<GlobalExceptionHandler>();
 
 // Add services to the container.
 
@@ -113,6 +118,8 @@ if (app.Environment.IsDevelopment())
     app.UseSwagger();
     app.UseSwaggerUI();
 }
+
+app.UseExceptionHandler();
 
 app.UseHttpsRedirection();
 
